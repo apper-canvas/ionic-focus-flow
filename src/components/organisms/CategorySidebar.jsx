@@ -67,8 +67,8 @@ const CategorySidebar = ({
           )}>
             {category.name}
           </span>
-          <p className="text-xs text-gray-500">
-            {category.taskCount} task{category.taskCount !== 1 ? "s" : ""}
+<p className="text-xs text-gray-500">
+            {category.task_count_c || category.taskCount} task{(category.task_count_c || category.taskCount) !== 1 ? "s" : ""}
           </p>
         </div>
       </div>
@@ -179,10 +179,10 @@ const CategorySidebar = ({
       {/* Categories List */}
       <div className="space-y-2">
         {categories.map(category => (
-          <CategoryItem
+<CategoryItem
             key={category.Id}
             category={category}
-            isSelected={selectedCategory === category.name.toLowerCase()}
+            isSelected={selectedCategory === (category.name_c || category.name || '').toLowerCase()}
           />
         ))}
       </div>

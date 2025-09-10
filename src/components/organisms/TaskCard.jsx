@@ -37,7 +37,7 @@ const TaskCard = ({
     low: "low"
   }[task.priority] || "default";
 
-  const isTaskOverdue = task.dueDate && !task.completed && isOverdue(task.dueDate);
+const isTaskOverdue = (task.due_date_c || task.dueDate) && !(task.completed_c || task.completed) && isOverdue(task.due_date_c || task.dueDate);
 
   return (
     <motion.div
@@ -58,7 +58,7 @@ const TaskCard = ({
       <div className="flex items-start gap-3">
         <div className="flex-shrink-0 mt-1" onClick={(e) => e.stopPropagation()}>
           <Checkbox
-            checked={task.completed}
+checked={task.completed_c || task.completed}
             onChange={handleToggle}
             size="md"
           />
@@ -66,16 +66,16 @@ const TaskCard = ({
 
         <div className="flex-1 min-w-0">
           <div className="flex items-start justify-between gap-2 mb-2">
-            <h3 className={cn(
+<h3 className={cn(
               "text-base font-semibold text-gray-900 leading-tight",
-              task.completed && "line-through text-gray-500"
+              (task.completed_c || task.completed) && "line-through text-gray-500"
             )}>
-              {task.title}
+              {task.title_c || task.title}
             </h3>
             
             <div className="flex items-center gap-2 flex-shrink-0">
               <Badge variant={priorityVariant} size="sm">
-                {task.priority}
+{task.priority_c || task.priority}
               </Badge>
               
               <div className="opacity-0 group-hover:opacity-100 transition-opacity duration-200 flex items-center gap-1">
@@ -101,23 +101,23 @@ const TaskCard = ({
 
           {/* Task Meta Info */}
           <div className="flex items-center gap-4 text-sm text-gray-500 mb-3">
-            {category && (
+{category && (
               <div className="flex items-center gap-1.5">
                 <div 
                   className="w-3 h-3 rounded-full"
-                  style={{ backgroundColor: category.color }}
+                  style={{ backgroundColor: category.color_c || category.color }}
                 />
-                <span>{category.name}</span>
+                <span>{category.name_c || category.name}</span>
               </div>
             )}
             
-            {task.dueDate && (
+{(task.due_date_c || task.dueDate) && (
               <div className={cn(
                 "flex items-center gap-1.5",
                 isTaskOverdue && "text-error-600 font-medium"
               )}>
                 <ApperIcon name="Calendar" size={14} />
-                <span>{formatTaskDate(task.dueDate)}</span>
+                <span>{formatTaskDate(task.due_date_c || task.dueDate)}</span>
                 {isTaskOverdue && (
                   <ApperIcon name="AlertTriangle" size={14} className="text-error-500" />
                 )}
@@ -125,13 +125,13 @@ const TaskCard = ({
             )}
             
             <div className="flex items-center gap-1.5">
-              <ApperIcon name="Clock" size={14} />
-              <span>{formatTaskDate(task.createdAt)}</span>
+<ApperIcon name="Clock" size={14} />
+              <span>{formatTaskDate(task.created_at_c || task.createdAt)}</span>
             </div>
           </div>
 
           {/* Task Description - Always visible if exists, expandable for longer text */}
-          {task.description && (
+{(task.description_c || task.description) && (
             <motion.div
               initial={false}
               animate={{ height: "auto" }}
@@ -139,13 +139,13 @@ const TaskCard = ({
             >
               <p className={cn(
                 "text-gray-600 text-sm leading-relaxed",
-                task.completed && "line-through",
-                !isExpanded && task.description.length > 120 && "line-clamp-2"
+                (task.completed_c || task.completed) && "line-through",
+                !isExpanded && (task.description_c || task.description).length > 120 && "line-clamp-2"
               )}>
-                {task.description}
+                {task.description_c || task.description}
               </p>
               
-              {task.description.length > 120 && (
+{(task.description_c || task.description).length > 120 && (
                 <button
                   className="text-primary-600 text-sm mt-1 hover:text-primary-700 font-medium"
                   onClick={(e) => {
@@ -162,10 +162,10 @@ const TaskCard = ({
       </div>
 
       {/* Category Border */}
-      {category && (
+{category && (
         <div 
           className="absolute left-0 top-0 w-1 h-full rounded-l-xl"
-          style={{ backgroundColor: category.color }}
+          style={{ backgroundColor: category.color_c || category.color }}
         />
       )}
     </motion.div>

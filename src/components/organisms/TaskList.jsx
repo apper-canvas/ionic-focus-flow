@@ -18,8 +18,9 @@ const TaskList = ({
   className 
 }) => {
   // Create category lookup for quick access
-  const categoryLookup = categories.reduce((acc, cat) => {
-    acc[cat.name.toLowerCase()] = cat;
+const categoryLookup = categories.reduce((acc, cat) => {
+    const categoryName = (cat.name_c || cat.name || '').toLowerCase();
+    acc[categoryName] = cat;
     return acc;
   }, {});
 
@@ -37,18 +38,24 @@ const TaskList = ({
 
   // Sort tasks: incomplete first, then by priority (high -> low), then by creation date
   const sortedTasks = [...tasks].sort((a, b) => {
-    // First, sort by completion status
-    if (a.completed !== b.completed) {
-      return a.completed ? 1 : -1;
+// First, sort by completion status
+    const aCompleted = a.completed_c || a.completed;
+    const bCompleted = b.completed_c || b.completed;
+    if (aCompleted !== bCompleted) {
+      return aCompleted ? 1 : -1;
     }
     
     // Then by priority
     const priorityOrder = { high: 3, medium: 2, low: 1 };
-    const priorityDiff = (priorityOrder[b.priority] || 2) - (priorityOrder[a.priority] || 2);
+    const aPriority = a.priority_c || a.priority;
+    const bPriority = b.priority_c || b.priority;
+    const priorityDiff = (priorityOrder[bPriority] || 2) - (priorityOrder[aPriority] || 2);
     if (priorityDiff !== 0) return priorityDiff;
     
     // Finally by creation date (newest first)
-    return new Date(b.createdAt) - new Date(a.createdAt);
+    const aCreated = a.created_at_c || a.createdAt;
+    const bCreated = b.created_at_c || b.createdAt;
+    return new Date(bCreated) - new Date(aCreated);
   });
 
   return (
@@ -69,9 +76,9 @@ const TaskList = ({
             }}
             layout
           >
-            <TaskCard
+<TaskCard
               task={task}
-              category={categoryLookup[task.category]}
+              category={categoryLookup[(task.category_c || task.category || '').toLowerCase()]}
               onToggle={onToggle}
               onEdit={onEdit}
               onDelete={onDelete}

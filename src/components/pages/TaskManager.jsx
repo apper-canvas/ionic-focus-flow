@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useContext } from "react";
 import { motion } from "framer-motion";
 import { toast } from "react-toastify";
 import ApperIcon from "@/components/ApperIcon";
@@ -10,6 +10,23 @@ import QuickStats from "@/components/molecules/QuickStats";
 import Button from "@/components/atoms/Button";
 import taskService from "@/services/api/taskService";
 import categoryService from "@/services/api/categoryService";
+import { AuthContext } from "../../App";
+
+const LogoutButton = () => {
+  const { logout } = useContext(AuthContext);
+  
+  return (
+    <Button
+      variant="outline"
+      size="sm"
+      onClick={logout}
+      className="ml-auto flex items-center gap-2 text-gray-600 hover:text-gray-800 border-gray-300 hover:border-gray-400"
+    >
+      <ApperIcon name="LogOut" size={16} />
+      Logout
+    </Button>
+  );
+};
 
 const TaskManager = () => {
   // Tasks state
@@ -73,17 +90,19 @@ const TaskManager = () => {
   };
 
   const updateCategoryTaskCounts = async () => {
-    for (const category of categories) {
+for (const category of categories) {
+      const categoryName = (category.name_c || category.name || '').toLowerCase();
       const categoryTasks = tasks.filter(task => 
-        task.category.toLowerCase() === category.name.toLowerCase()
+        (task.category_c || task.category || '').toLowerCase() === categoryName
       );
       
-      if (categoryTasks.length !== category.taskCount) {
+const currentTaskCount = category.task_count_c || category.taskCount || 0;
+      if (categoryTasks.length !== currentTaskCount) {
         try {
-          await categoryService.updateTaskCount(category.name, categoryTasks.length);
+          await categoryService.updateTaskCount(category.name_c || category.name, categoryTasks.length);
           setCategories(prev => prev.map(cat => 
             cat.Id === category.Id 
-              ? { ...cat, taskCount: categoryTasks.length }
+              ? { ...cat, task_count_c: categoryTasks.length, taskCount: categoryTasks.length }
               : cat
           ));
         } catch (error) {
@@ -178,17 +197,17 @@ const TaskManager = () => {
     setShowTaskForm(false);
   };
 
-  // Filter tasks based on current filters
+// Filter tasks based on current filters
   const filteredTasks = tasks.filter(task => {
     // Status filter
-    if (statusFilter === "completed" && !task.completed) return false;
-    if (statusFilter === "pending" && task.completed) return false;
+    if (statusFilter === "completed" && !(task.completed_c || task.completed)) return false;
+    if (statusFilter === "pending" && (task.completed_c || task.completed)) return false;
     
     // Priority filter
-    if (priorityFilter !== "all" && task.priority !== priorityFilter) return false;
+    if (priorityFilter !== "all" && (task.priority_c || task.priority) !== priorityFilter) return false;
     
     // Category filter
-    if (categoryFilter !== "all" && task.category.toLowerCase() !== categoryFilter) return false;
+    if (categoryFilter !== "all" && (task.category_c || task.category || '').toLowerCase() !== categoryFilter) return false;
     
     return true;
   });
@@ -334,11 +353,14 @@ const TaskManager = () => {
             {/* Task List Header */}
             <div className="flex items-center justify-between">
               <div>
-                <h2 className="text-xl font-bold text-gray-900">
-                  {statusFilter === "all" && "All Tasks"}
-                  {statusFilter === "pending" && "Pending Tasks"}
-                  {statusFilter === "completed" && "Completed Tasks"}
-                  {categoryFilter !== "all" && ` · ${categories.find(c => c.name.toLowerCase() === categoryFilter)?.name || categoryFilter}`}
+<h2 className="text-xl font-bold text-gray-900 flex items-center gap-4">
+                  <span>
+                    {statusFilter === "all" && "All Tasks"}
+                    {statusFilter === "pending" && "Pending Tasks"}
+                    {statusFilter === "completed" && "Completed Tasks"}
+                    {categoryFilter !== "all" && ` · ${categories.find(c => (c.name_c || c.name || '').toLowerCase() === categoryFilter)?.name_c || categories.find(c => (c.name_c || c.name || '').toLowerCase() === categoryFilter)?.name || categoryFilter}`}
+                  </span>
+                  <LogoutButton />
                 </h2>
                 <p className="text-sm text-gray-600">
                   {filteredTasks.length} task{filteredTasks.length !== 1 ? "s" : ""} found

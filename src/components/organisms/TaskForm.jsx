@@ -14,7 +14,7 @@ const TaskForm = ({
   onCancel,
   className 
 }) => {
-  const [formData, setFormData] = useState({
+const [formData, setFormData] = useState({
     title: "",
     description: "",
     priority: "medium",
@@ -27,13 +27,13 @@ const [isSubmitting, setIsSubmitting] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
 
 useEffect(() => {
-    if (task) {
+if (task) {
       setFormData({
-        title: task.title || "",
-        description: task.description || "",
-        priority: task.priority || "medium",
-        category: task.category || "personal",
-        dueDate: task.dueDate ? task.dueDate.split("T")[0] : ""
+        title: task.title_c || task.title || "",
+        description: task.description_c || task.description || "",
+        priority: task.priority_c || task.priority || "medium",
+        category: task.category_c || task.category || "personal",
+        dueDate: task.due_date_c ? task.due_date_c.split("T")[0] : (task.dueDate ? task.dueDate.split("T")[0] : "")
       });
     }
   }, [task]);
@@ -224,10 +224,10 @@ useEffect(() => {
             value={formData.category}
             onChange={handleChange("category")}
           >
-            {categories.length > 0 ? (
+{categories.length > 0 ? (
               categories.map(category => (
-                <option key={category.Id} value={category.name.toLowerCase()}>
-                  {category.name}
+                <option key={category.Id} value={(category.name_c || category.name || '').toLowerCase()}>
+                  {category.name_c || category.name}
                 </option>
               ))
             ) : (
