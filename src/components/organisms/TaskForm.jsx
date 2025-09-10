@@ -5,6 +5,7 @@ import Button from "@/components/atoms/Button";
 import FormField from "@/components/molecules/FormField";
 import PrioritySelector from "@/components/molecules/PrioritySelector";
 import ApperIcon from "@/components/ApperIcon";
+import descriptionService from "@/services/api/descriptionService";
 
 const TaskForm = ({ 
   task,
@@ -22,9 +23,10 @@ const TaskForm = ({
   });
   
   const [errors, setErrors] = useState({});
-  const [isSubmitting, setIsSubmitting] = useState(false);
+const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isGenerating, setIsGenerating] = useState(false);
 
-  useEffect(() => {
+useEffect(() => {
     if (task) {
       setFormData({
         title: task.title || "",
@@ -35,6 +37,26 @@ const TaskForm = ({
       });
     }
   }, [task]);
+
+  const handleGenerateDescription = async () => {
+    if (!formData.title.trim()) {
+      return;
+    }
+
+    setIsGenerating(true);
+    try {
+      const generatedDescription = await descriptionService.generateDescription(formData.title);
+      setFormData(prev => ({
+        ...prev,
+        description: generatedDescription
+      }));
+    } catch (error) {
+      console.error('Failed to generate description:', error);
+      // Silently fail - user can still enter description manually
+    } finally {
+      setIsGenerating(false);
+    }
+  };
 
   const validateForm = () => {
     const newErrors = {};
@@ -147,15 +169,43 @@ const TaskForm = ({
           required
         />
 
-        <FormField
-          label="Description"
-          type="textarea"
-          value={formData.description}
-          onChange={handleChange("description")}
-          placeholder="Add task description (optional)..."
-          error={errors.description}
-          rows={3}
-        />
+<div className="space-y-2">
+          <div className="flex items-center justify-between">
+            <label className="block text-sm font-medium text-gray-700">
+              Description
+            </label>
+            {formData.title.trim() && !formData.description.trim() && (
+              <Button
+                type="button"
+                variant="ghost"
+                size="sm"
+                onClick={handleGenerateDescription}
+                disabled={isGenerating}
+                className="text-xs px-2 py-1 h-auto"
+              >
+                {isGenerating ? (
+                  <>
+                    <ApperIcon name="Loader2" size={12} className="animate-spin mr-1" />
+                    Generating...
+                  </>
+                ) : (
+                  <>
+                    <ApperIcon name="Sparkles" size={12} className="mr-1" />
+                    Auto-generate
+                  </>
+                )}
+              </Button>
+            )}
+          </div>
+          <FormField
+            type="textarea"
+            value={formData.description}
+            onChange={handleChange("description")}
+            placeholder="Add task description (optional)..."
+            error={errors.description}
+            rows={3}
+          />
+        </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div className="space-y-1">
