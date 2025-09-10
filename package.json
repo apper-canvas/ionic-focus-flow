@@ -1,6 +1,6 @@
 {
-  "name": "focus-flow",
-  "private": true
+"name": "focus-flow",
+  "private": true,
   "version": "0.0.0",
   "type": "module",
   "scripts": {
