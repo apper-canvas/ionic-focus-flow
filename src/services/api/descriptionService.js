@@ -1,7 +1,7 @@
 const descriptionService = {
   generateDescription: async (title) => {
     try {
-      const response = await fetch('https://test-api.apper.io/fn/generate-task-description', {
+      const response = await fetch('https://test-api.apper.io/fn/e01222b0eeea446eaa55f8a83ae145b4/execute', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
